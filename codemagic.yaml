@@ -94,13 +94,11 @@ workflows:
 
       - name: Build iOS IPA
         script: |
-          WORKSPACE=$(find ios -name "*.xcworkspace" -not -path "*/xcuserdata/*" | head -1)
-          SCHEME=$(find ios -name "*.xcscheme" -not -path "*/xcuserdata/*" | head -1 | xargs basename | sed 's/.xcscheme//')
+          WORKSPACE=$(find ios -name "*.xcworkspace" -not -path "*/xcuserdata/*" -not -path "*/project.xcworkspace" | head -1)
           echo "Using workspace: $WORKSPACE"
-          echo "Using scheme: $SCHEME"
           xcode-project build-ipa \
             --workspace "$WORKSPACE" \
-            --scheme "$SCHEME"
+            --scheme "App"
 
     artifacts:
       - build/ios/ipa/*.ipa

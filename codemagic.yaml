@@ -82,15 +82,11 @@ workflows:
 
       - name: Install CocoaPods dependencies
         script: |
-          PODFILE_PATH=$(find . -name "Podfile" -not -path "*/node_modules/*" | head -1)
-          if [ -z "$PODFILE_PATH" ]; then
-            echo "Podfile not found!"
-            exit 1
+          if [ -f "ios/App/Podfile" ]; then
+            cd ios/App && pod install --repo-update
+          else
+            echo "No Podfile found, skipping pod install"
           fi
-          PODFILE_DIR=$(dirname "$PODFILE_PATH")
-          echo "Found Podfile at: $PODFILE_DIR"
-          cd "$PODFILE_DIR"
-          pod install --repo-update
 
       - name: Set up code signing (automatic)
         script: |

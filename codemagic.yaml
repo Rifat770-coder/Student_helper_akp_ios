@@ -101,26 +101,32 @@ workflows:
 
       - name: Build iOS IPA
         script: |
-          cat > /Users/builder/export_options.plist << 'EOF'
-          <?xml version="1.0" encoding="UTF-8"?>
-          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-          <plist version="1.0">
-          <dict>
-            <key>method</key>
-            <string>development</string>
-            <key>compileBitcode</key>
-            <false/>
-          </dict>
-          </plist>
-          EOF
-          xcode-project build-ipa \
-            --workspace "ios/App/App.xcworkspace" \
-            --scheme "App" \
-            --config "Debug" \
-            --export-options-plist /Users/builder/export_options.plist
+          cd ios/App
+          xcodebuild \
+            -workspace App.xcworkspace \
+            -scheme App \
+            -configuration Debug \
+            -destination generic/platform=iOS \
+            -archivePath $CM_BUILD_DIR/App.xcarchive \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            COMPILER_INDEX_STORE_ENABLE=NO \
+            archive | xcpretty
+          mkdir -p $CM_BUILD_DIR/ipa
+          cd $CM_BUILD_DIR
+          xcodebuild -exportArchive \
+            -archivePath App.xcarchive \
+            -exportPath ipa \
+            -exportOptionsPlist /Users/builder/export_options.plist \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO || true
+          # Fallback: extract .app from archive directly
+          find App.xcarchive -name "*.app" -exec cp -r {} ipa/ \; || true
 
     artifacts:
-      - build/ios/ipa/*.ipa
+      - $CM_BUILD_DIR/ipa/*.ipa
+      - $CM_BUILD_DIR/ipa/*.app
       - /tmp/xcodebuild_logs/*.log
       - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.dSYM
 

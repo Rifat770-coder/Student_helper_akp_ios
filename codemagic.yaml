@@ -87,7 +87,7 @@ workflows:
             echo "Podfile missing — creating one..."
             mkdir -p ios/App
             cat > ios/App/Podfile << 'EOF'
-          platform :ios, '14.0'
+          platform :ios, '16.0'
           use_frameworks!
 
           target 'App' do

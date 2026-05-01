@@ -61,8 +61,6 @@ workflows:
       # APP_STORE_CONNECT_KEY_IDENTIFIER
       # APP_STORE_CONNECT_PRIVATE_KEY
       # CERTIFICATE_PRIVATE_KEY
-      integrations:
-        app_store_connect: codemagic  # name of your App Store Connect API key in Codemagic
     scripts:
       - name: Install Node dependencies
         script: npm install

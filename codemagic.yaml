@@ -102,6 +102,7 @@ workflows:
       - name: Build iOS IPA
         script: |
           cd ios/App
+          # Build archive without code signing
           xcodebuild \
             -workspace App.xcworkspace \
             -scheme App \
@@ -112,17 +113,16 @@ workflows:
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
             COMPILER_INDEX_STORE_ENABLE=NO \
-            archive | xcpretty
-          mkdir -p $CM_BUILD_DIR/ipa
-          cd $CM_BUILD_DIR
-          xcodebuild -exportArchive \
-            -archivePath App.xcarchive \
-            -exportPath ipa \
-            -exportOptionsPlist /Users/builder/export_options.plist \
-            CODE_SIGN_IDENTITY="" \
-            CODE_SIGNING_REQUIRED=NO || true
-          # Fallback: extract .app from archive directly
-          find App.xcarchive -name "*.app" -exec cp -r {} ipa/ \; || true
+            archive
+
+          # Extract .app from archive and package as .ipa manually
+          APP_PATH=$(find $CM_BUILD_DIR/App.xcarchive -name "*.app" | head -1)
+          echo "Found app at: $APP_PATH"
+          mkdir -p $CM_BUILD_DIR/ipa/Payload
+          cp -r "$APP_PATH" $CM_BUILD_DIR/ipa/Payload/
+          cd $CM_BUILD_DIR/ipa
+          zip -r App.ipa Payload
+          echo "IPA created at: $CM_BUILD_DIR/ipa/App.ipa"
 
     artifacts:
       - $CM_BUILD_DIR/ipa/*.ipa

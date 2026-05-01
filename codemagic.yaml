@@ -74,15 +74,16 @@ workflows:
       - name: Install Capacitor CLI
         script: npm install -g @capacitor/cli
 
-      - name: Add iOS platform and Sync Capacitor
-        script: |
-          npx cap add ios || true
-          npx cap sync ios
+      - name: Add iOS platform
+        script: npx cap add ios || true
+
+      - name: Sync Capacitor to iOS
+        script: npx cap sync ios
 
       - name: Install CocoaPods dependencies
         script: |
           cd ios/App
-          pod install
+          pod install --repo-update
 
       - name: Set up code signing (automatic)
         script: |

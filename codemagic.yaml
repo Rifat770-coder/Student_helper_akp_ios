@@ -65,6 +65,9 @@ workflows:
       - name: Install Node dependencies
         script: npm install
 
+      - name: Install Capacitor iOS package
+        script: npm install @capacitor/ios
+
       - name: Build web assets
         script: npm run build
 

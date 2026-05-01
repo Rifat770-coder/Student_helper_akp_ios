@@ -63,10 +63,9 @@ workflows:
       # CERTIFICATE_PRIVATE_KEY
     scripts:
       - name: Install Node dependencies
-        script: npm install
-
-      - name: Install Capacitor iOS package
-        script: npm install @capacitor/ios
+        script: |
+          npm install
+          npm install @capacitor/ios --save
 
       - name: Build web assets
         script: npm run build
@@ -74,19 +73,13 @@ workflows:
       - name: Install Capacitor CLI
         script: npm install -g @capacitor/cli
 
-      - name: Add iOS platform
-        script: npx cap add ios || true
-
-      - name: Sync Capacitor to iOS
-        script: npx cap sync ios
-
-      - name: Debug iOS folder structure
+      - name: Add and Sync iOS platform
         script: |
-          echo "=== iOS folder contents ==="
-          ls -la ios/ || echo "No ios folder"
-          ls -la ios/App/ || echo "No ios/App folder"
-          find ios -name "Podfile" 2>/dev/null || echo "No Podfile found"
-          find ios -name "*.xcworkspace" -not -path "*/project.xcworkspace" 2>/dev/null || echo "No xcworkspace found"
+          npx cap add ios || true
+          npx cap sync ios
+          echo "=== Checking ios/App folder ==="
+          ls -la ios/App/ || echo "ios/App not found"
+          find ios -name "Podfile" || echo "No Podfile"
 
       - name: Install CocoaPods dependencies
         script: |
@@ -97,7 +90,8 @@ workflows:
         script: |
           xcode-project build-ipa \
             --workspace "ios/App/App.xcworkspace" \
-            --scheme "App"
+            --scheme "App" \
+            --config "Debug"
 
     artifacts:
       - build/ios/ipa/*.ipa

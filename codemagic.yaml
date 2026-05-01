@@ -80,24 +80,23 @@ workflows:
       - name: Sync Capacitor to iOS
         script: npx cap sync ios
 
+      - name: Debug iOS folder structure
+        script: |
+          echo "=== iOS folder contents ==="
+          ls -la ios/ || echo "No ios folder"
+          ls -la ios/App/ || echo "No ios/App folder"
+          find ios -name "Podfile" 2>/dev/null || echo "No Podfile found"
+          find ios -name "*.xcworkspace" -not -path "*/project.xcworkspace" 2>/dev/null || echo "No xcworkspace found"
+
       - name: Install CocoaPods dependencies
         script: |
-          if [ -f "ios/App/Podfile" ]; then
-            cd ios/App && pod install --repo-update
-          else
-            echo "No Podfile found, skipping pod install"
-          fi
-
-      - name: Set up code signing (automatic)
-        script: |
-          xcode-project use-profiles
+          cd ios/App
+          pod install --repo-update
 
       - name: Build iOS IPA
         script: |
-          WORKSPACE=$(find ios -name "*.xcworkspace" -not -path "*/xcuserdata/*" -not -path "*/project.xcworkspace" | head -1)
-          echo "Using workspace: $WORKSPACE"
           xcode-project build-ipa \
-            --workspace "$WORKSPACE" \
+            --workspace "ios/App/App.xcworkspace" \
             --scheme "App"
 
     artifacts:

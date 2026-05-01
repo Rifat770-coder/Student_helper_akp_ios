@@ -83,6 +83,19 @@ workflows:
 
       - name: Install CocoaPods dependencies
         script: |
+          if [ ! -f "ios/App/Podfile" ]; then
+            echo "Podfile missing — creating one..."
+            mkdir -p ios/App
+            cat > ios/App/Podfile << 'EOF'
+          platform :ios, '14.0'
+          use_frameworks!
+
+          target 'App' do
+            pod 'Capacitor', :path => '../../node_modules/@capacitor/ios'
+            pod 'CapacitorCordova', :path => '../../node_modules/@capacitor/ios'
+          end
+          EOF
+          fi
           cd ios/App
           pod install --repo-update
 
